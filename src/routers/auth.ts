@@ -6,7 +6,7 @@ import {
 } from '@prisma/client';
 import {
     PrismaClientKnownRequestError,
-} from '@prisma/client/runtime';
+} from '@prisma/client/runtime/library';
 import jwt from '../modules/jwt';
 
 const prisma = new PrismaClient();
@@ -105,17 +105,13 @@ router.post('/signup', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     const {
-        username,
+        emailAddress,
         passwordHash,
     } = req.body;
 
     const user = await prisma.user.findUnique({
         where: {
-            email: username,
-        },
-    }) || await prisma.user.findUnique({
-        where: {
-            phoneNumber: username,
+            email: emailAddress,
         },
     });
 
@@ -129,7 +125,7 @@ router.post('/login', async (req, res) => {
                 ipAddressHash: req.ipHash,
                 logDate: new Date(),
                 message: JSON.stringify({
-                    username,
+                    emailAddress,
                     passwordHash,
                 }),
             },
@@ -154,7 +150,7 @@ router.post('/login', async (req, res) => {
             userId: user.id,
             logDate: new Date(),
             message: JSON.stringify({
-                username,
+                emailAddress,
                 passwordHash,
             }),
         },
