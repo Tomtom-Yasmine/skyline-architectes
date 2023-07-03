@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import {
     Request,
     RequestHandler,
@@ -6,9 +5,10 @@ import {
     NextFunction,
 } from 'express';
 import dayjs from 'dayjs';
+import crypt from '../modules/crypt';
 
-export const hashIpAddress = (): RequestHandler => (req: Request, _res: Response, next: NextFunction) => {
-    req.ipHash = crypto.createHash('sha1').update(req.ip).digest('hex');
+export const hashIpAddress = (): RequestHandler => async (req: Request, _res: Response, next: NextFunction) => {
+    req.ipHash = await crypt.forDefault().hash(req.ip);
     next();
 };
 
