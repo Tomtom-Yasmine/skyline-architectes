@@ -5,6 +5,7 @@ import {
     requestDate,
 } from './middleware';
 import authRouter from './routers/auth';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ const port = process.env.PORT || 3000;
 app.use(
     requestDate(),
     hashIpAddress(),
+    cors(),
     express.json(),
     express.urlencoded({ extended: true }),
 );

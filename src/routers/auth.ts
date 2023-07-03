@@ -99,13 +99,13 @@ router.post('/signup', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     const {
-        emailAddress,
+        email,
         passwordHash,
     } = req.body;
 
     const user = await prisma.user.findUnique({
         where: {
-            email: emailAddress,
+            email,
         },
     });
 
@@ -119,7 +119,7 @@ router.post('/login', async (req, res) => {
                 ipAddressHash: req.ipHash,
                 logDate: new Date(),
                 message: JSON.stringify({
-                    emailAddress,
+                    email,
                     passwordHash,
                 }),
             },
@@ -138,7 +138,7 @@ router.post('/login', async (req, res) => {
             userId: user.id,
             logDate: new Date(),
             message: JSON.stringify({
-                emailAddress,
+                email,
                 passwordHash,
             }),
         },
