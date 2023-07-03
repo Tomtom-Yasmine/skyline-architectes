@@ -55,14 +55,8 @@ router.post('/signup', async (req, res) => {
             });
             return;
         }
-    
-        const token = jwt.sign(
-            {},
-            {
-                subject: user.id,
-                expiresIn: '365d',
-            }
-        );
+
+        const token = jwt.forUserSession(user).sign();
         res.json({
             sessionToken: token,
         });
@@ -133,13 +127,7 @@ router.post('/login', async (req, res) => {
         return;
     }
 
-    const token = jwt.sign(
-        {},
-        {
-            subject: user.id,
-            expiresIn: '365d',
-        }
-    );
+    const token = jwt.forUserSession(user).sign();
     res.json({
         sessionToken: token,
     });
