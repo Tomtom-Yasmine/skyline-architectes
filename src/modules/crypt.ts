@@ -35,13 +35,14 @@ const verify = (value: string, hash: string, algorithm: string): Promise<boolean
     return supportedHashAlgorithms[algorithm].verify(value, hash);
 };
 
-const forPassword = (): HashAlgorithm => {
-    return supportedHashAlgorithms[passwordHashAlgorithm];
-};
+const forDefault = (): HashAlgorithm => supportedHashAlgorithms[defaultHashAlgorithm];
+
+const forPassword = (): HashAlgorithm => supportedHashAlgorithms[passwordHashAlgorithm];
 
 export default {
     supportedHashAlgorithms,
     hash,
     verify,
+    forDefault,
     forPassword,
 };
