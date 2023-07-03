@@ -7,6 +7,7 @@ import {
 import {
     PrismaClientKnownRequestError,
 } from '@prisma/client/runtime/library';
+import crypt from '../modules/crypt';
 import jwt from '../modules/jwt';
 
 const prisma = new PrismaClient();
@@ -19,7 +20,7 @@ router.post('/signup', async (req, res) => {
         lastName,
         email,
         phoneNumber,
-        passwordHash,
+        password,
         companyName,
         companySiret,
         companyAddressNumber,
@@ -31,6 +32,7 @@ router.post('/signup', async (req, res) => {
     } = req.body;
 
     try {
+        const passwordHash = await crypt.forPassword().hash(password);
         const user = await prisma.user.create({
             data: {
                 firstName,
@@ -100,7 +102,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     const {
         email,
-        passwordHash,
+        password,
     } = req.body;
 
     const user = await prisma.user.findUnique({
@@ -109,7 +111,7 @@ router.post('/login', async (req, res) => {
         },
     });
 
-    if (! user || user.passwordHash !== passwordHash) {
+    if (! user || ! await crypt.forPassword().verify(password, user.passwordHash)) {
         res.status(401).json({
             message: 'ERR:INVALID_CREDENTIALS',
         });
@@ -120,7 +122,7 @@ router.post('/login', async (req, res) => {
                 logDate: new Date(),
                 message: JSON.stringify({
                     email,
-                    passwordHash,
+                    passwordHash: await crypt.forPassword().hash(password),
                 }),
             },
         });
@@ -139,7 +141,6 @@ router.post('/login', async (req, res) => {
             logDate: new Date(),
             message: JSON.stringify({
                 email,
-                passwordHash,
             }),
         },
     });
