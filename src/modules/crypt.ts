@@ -1,8 +1,8 @@
 import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
 
-const defaultHashAlgorithm = <string>process.env.HASH_ALGO;
-const passwordHashAlgorithm = process.env.PASSWORD_HASH_ALGO || defaultHashAlgorithm;
+const getDefaultHashAlgorithm = () => <string>process.env.DEFAULT_HASH_ALGO;
+const getPasswordHashAlgorithm = () => process.env.PASSWORD_HASH_ALGO || getDefaultHashAlgorithm();
 
 type HashAlgorithm = {
     hash: (value: string) => Promise<string>;
@@ -35,9 +35,9 @@ const verify = (value: string, hash: string, algorithm: string): Promise<boolean
     return supportedHashAlgorithms[algorithm].verify(value, hash);
 };
 
-const forDefault = (): HashAlgorithm => supportedHashAlgorithms[defaultHashAlgorithm];
+const forDefault = (): HashAlgorithm => supportedHashAlgorithms[getDefaultHashAlgorithm()];
 
-const forPassword = (): HashAlgorithm => supportedHashAlgorithms[passwordHashAlgorithm];
+const forPassword = (): HashAlgorithm => supportedHashAlgorithms[getPasswordHashAlgorithm()];
 
 export default {
     supportedHashAlgorithms,
