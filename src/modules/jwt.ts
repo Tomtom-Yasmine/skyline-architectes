@@ -50,7 +50,6 @@ const forUserSession = (user?: User): JwtFactory<{
                     complete: true,
                 },
             );
-            console.log(decoded);
             if (typeof decoded.payload === 'string'
             || ! decoded.payload.sub
             || decoded.payload.purpose !== JwtPurpose.UserSession) {
