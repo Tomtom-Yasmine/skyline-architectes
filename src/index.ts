@@ -22,9 +22,8 @@ app.use(
     cors(),
     express.json(),
     express.urlencoded({ extended: true }),
+    authenticate(),
 );
-
-app.use(authenticate());
 
 app.use(authRouter);
 
