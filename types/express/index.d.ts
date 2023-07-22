@@ -1,3 +1,7 @@
+import {
+    User,
+} from '@prisma/client';
+
 export {}
 
 declare global {
@@ -5,6 +9,7 @@ declare global {
         interface Request {
             date: dayjs.Dayjs;
             ipHash: string;
+            user?: User;
         }
     }
 }
