@@ -14,6 +14,7 @@ import { Role, } from '@prisma/client';
 dotenv.config();
 
 const app = express();
+app.set('x-powered-by', false);
 const port = process.env.PORT || 3000;
 
 app.use(
