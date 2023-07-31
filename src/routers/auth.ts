@@ -9,6 +9,8 @@ import {
 } from '@prisma/client/runtime/library';
 import crypt from '../modules/crypt';
 import jwt from '../modules/jwt';
+import { updatePassword } from '../controllers/auth';
+import { requireAuthentication } from '../middleware';
 
 const prisma = new PrismaClient();
 
@@ -145,5 +147,7 @@ router.post('/login', async (req, res) => {
         },
     });
 });
+
+router.post('/update-password', requireAuthentication(), updatePassword);
 
 export default router;

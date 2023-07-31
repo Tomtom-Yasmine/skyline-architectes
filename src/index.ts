@@ -5,11 +5,12 @@ import {
     hashIpAddress,
     requestDate,
     authenticate,
-    requireAuthentication,
     restrictTo,
 } from './middleware';
 import authRouter from './routers/auth';
+import meRouter from './routers/me';
 import { Role, } from '@prisma/client';
+import stripe from './routers/stripe';
 
 dotenv.config();
 
@@ -27,6 +28,8 @@ app.use(
 );
 
 app.use(authRouter);
+app.use(meRouter);
+app.use("/stripe",stripe);
 
 app.get(
     '/',
