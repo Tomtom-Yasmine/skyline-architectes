@@ -50,6 +50,8 @@ router.post('/signup', async (req, res) => {
                 companyAddressCity,
                 companyAddressZipCode,
                 companyAddressCountry,
+                havePaid: false,
+                storage : 0,
             },
         });
 
@@ -84,6 +86,8 @@ router.post('/signup', async (req, res) => {
                     companyAddressCity,
                     companyAddressZipCode,
                     companyAddressCountry,
+                    havePaid: false,
+                    storage : 0,
                 }),
             },
         });
