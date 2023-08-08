@@ -30,6 +30,8 @@ model User {
   orders                   Order[]
   files                    File[]
   logs                     Log[]
+  storage                  Int      @default(0)  
+  havePaid                 Boolean  @default(false)
 }
 
 model Order {
