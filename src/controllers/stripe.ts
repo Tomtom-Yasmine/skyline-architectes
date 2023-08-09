@@ -8,7 +8,7 @@ const stripe = Stripe(process.env.STRIPE_PRIVATE_KEY);
 
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
-    const amount = req.body.data.amount;
+    const amount = req.body.amount;
     const price = amount;
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -24,8 +24,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}${req.body.data.urlSuccess}`,
-      cancel_url: `${process.env.CLIENT_URL}${req.body.data.urlFailure}`,
+      success_url: `${process.env.CLIENT_URL}${req.body.urlSuccess}`,
+      cancel_url: `${process.env.CLIENT_URL}${req.body.urlFailure}`,
       metadata:{
         "user_id": req.user?.id,
         "amount": amount,
