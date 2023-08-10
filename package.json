@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc && node build/index.js",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "watch-start": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"tsc -w\" \"node --watch build/index.js\""
   },
   "author": "",
   "license": "ISC",
