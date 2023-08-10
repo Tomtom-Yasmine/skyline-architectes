@@ -16,6 +16,8 @@ CREATE TABLE `User` (
     `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
     `passwordHash` VARCHAR(191) NOT NULL,
     `signedUpAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `storage` INTEGER NOT NULL DEFAULT 0,
+    `havePaid` BOOLEAN NOT NULL DEFAULT false,
 
     UNIQUE INDEX `User_email_key`(`email`),
     UNIQUE INDEX `User_phoneNumber_key`(`phoneNumber`),
