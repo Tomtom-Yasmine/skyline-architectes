@@ -28,6 +28,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
         ...restMetadata,
         "user_id": req.user?.id,
         "amount": amount,
+        "amount_excluding_taxes":amount- amount*0.2,
     },
     });
     res.send({url : session.url});

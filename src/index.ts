@@ -51,8 +51,15 @@ const generateInvoicePDF = async (invoiceData:any, filePath: string, orderNumber
     doc.fontSize(10).text(`Heure: ${currentDate.toLocaleTimeString()}`, { align: 'left' });
     doc.moveDown(1);
     doc.fontSize(16).text(`Facture N°${orderNumber}`, { align: 'center' });
-    doc.fontSize(12).text(`Produit acheté : ${invoiceData.metadata.amount} Go`);
-    doc.fontSize(12).text(`Montant: ${invoiceData.metadata.amount}€`);
+
+    doc.fontSize(12)
+        .text(`Produit acheté : Stockage skyline architectes (Go)`)
+        .text(`Quantité : ${invoiceData.metadata.amount} (Go)`)
+        .text(`Prix unitaire (Hors taxes) : ${(invoiceData.metadata.amount - (invoiceData.metadata.amount * 0.20)) / invoiceData.metadata.amount}€`)
+        .text(`Montant total (Hors taxes) : ${invoiceData.metadata.amount}€`)
+        .text(`Montant TVA (20%) : ${invoiceData.metadata.amount * 0.20}€`)
+        .text(`Montant total (avec TVA) : ${invoiceData.metadata.amount - (invoiceData.metadata.amount * 0.20)}€`);
+    
     doc.end();
   };
 
