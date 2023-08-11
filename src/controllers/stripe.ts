@@ -2,14 +2,12 @@ import {
     Request,
     Response,
 } from 'express';
-
-const Stripe = require('stripe');
-const stripe = Stripe(process.env.STRIPE_PRIVATE_KEY);
-
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY as string, {apiVersion: '2022-11-15'});
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
-    const amount = req.body.amount;
-    const price = amount;
+    const amount = req.body.price;
+    const {user, ...restMetadata} = req.body.metadata;
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -18,7 +16,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
             product_data: {
               name: `Stockage de ${amount}Go`,
             },
-            unit_amount: price*100/amount,
+            unit_amount: amount*100/amount,
           },
           quantity: amount,
         },
@@ -26,7 +24,8 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       mode: 'payment',
       success_url: `${process.env.CLIENT_URL}${req.body.urlSuccess}`,
       cancel_url: `${process.env.CLIENT_URL}${req.body.urlFailure}`,
-      metadata:{
+      metadata: {
+        ...restMetadata,
         "user_id": req.user?.id,
         "amount": amount,
     },
