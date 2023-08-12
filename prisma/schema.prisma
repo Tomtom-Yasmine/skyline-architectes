@@ -36,7 +36,7 @@ model User {
 
 model Order {
   id                      String   @id @default(uuid())
-  orderNumber             String   @unique
+  orderNumber             Int   @unique @default(autoincrement())
   quantity                Int
   unitPriceExcludingTaxes Float
   vat                     Float
