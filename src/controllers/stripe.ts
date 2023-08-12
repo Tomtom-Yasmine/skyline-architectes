@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY as string, {apiVersion: '2022-11-15'});
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
-    const amount = req.body.price;
+    const amount = req.body.amount;
     const {user, ...restMetadata} = req.body.metadata;
     const session = await stripe.checkout.sessions.create({
       line_items: [
