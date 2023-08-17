@@ -6,8 +6,10 @@ import {
     requestDate,
     authenticate,
     restrictTo,
+    requireAuthentication,
 } from './middleware';
 import authRouter from './routers/auth';
+import fileRouter from './routers/file';
 import meRouter from './routers/me';
 import { Role, } from '@prisma/client';
 import stripe from './routers/stripe';
@@ -30,7 +32,8 @@ app.use(
 
 app.use(authRouter);
 app.use(meRouter);
-app.use("/stripe",stripe);
+app.use('/stripe', stripe);
+app.use(fileRouter);
 
 app.get(
     '/',

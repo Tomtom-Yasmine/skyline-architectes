@@ -9,7 +9,10 @@ declare global {
         interface Request {
             date: dayjs.Dayjs;
             ipHash: string;
-            user?: User;
+            user?: User & {
+                numberOfFiles: number;
+                totalUsedSizeBytes: number;
+            };
         }
     }
 }

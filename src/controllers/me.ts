@@ -3,17 +3,15 @@ import {
     Response,
 } from 'express';
 import {
+    FileType,
     PrismaClient,
+    Role,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export const getMe = async (req: Request, res: Response) => {
-    const user = await prisma.user.findUnique({
-        where: {
-            id: req.user?.id,
-        },
-    });
+    const { user, } = req;
 
     if (! user) {
         res.status(404).json({
@@ -29,6 +27,10 @@ export const getMe = async (req: Request, res: Response) => {
             lastName: user.lastName,
             email: user.email,
             phoneNumber: user.phoneNumber,
+            role: user.role,
+            storage: user.storage,
+            totalUsedSizeBytes: user.totalUsedSizeBytes,
+            numberOfFiles: user.numberOfFiles,
             companyName: user.companyName,
             companySiret: user.companySiret,
             companyAddressNumber: user.companyAddressNumber,
