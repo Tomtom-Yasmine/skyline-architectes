@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsc && node build/index.js",
     "start": "node build/index.js",
-    "watch-start": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,green.bold\" \"tsc -w\" \"node --watch build/index.js\""
+    "watch-start": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"blue.bold,green.bold\" \"tsc -w\" \"node --watch build/index.js\""
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +16,7 @@
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.2",
+    "@types/multer": "^1.4.7",
     "@types/node": "^20.3.1",
     "@typescript-eslint/eslint-plugin": "^5.59.11",
     "@typescript-eslint/parser": "^5.59.11",

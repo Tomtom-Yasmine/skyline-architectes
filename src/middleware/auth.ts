@@ -5,6 +5,7 @@ import {
     Response,
 } from 'express';
 import {
+    FileType,
     PrismaClient,
     Role,
 } from '@prisma/client';
@@ -44,7 +45,38 @@ export const authenticate = (): RequestHandler => async (req: Request, res: Resp
             return;
         }
 
-        req.user = user;
+        let storageAggregate;
+
+        if (user.role === Role.USER) {
+            storageAggregate = await prisma.file.aggregate({
+                where: {
+                    userId: user.id,
+                    type: FileType.USER_FILE,
+                },
+                _count: {
+                    id: true,
+                },
+                _sum: {
+                    sizeBytes: true,
+                },
+                orderBy: {
+                    uploadedAt: 'desc',
+                },
+            });
+
+            if (! storageAggregate) {
+                res.status(404).json({
+                    message: 'ERR:USER_STORAGE_INFO_NOT_FOUND',
+                });
+                return;
+            }
+        }
+
+        req.user = {
+            ...user,
+            numberOfFiles: storageAggregate?._count.id || 0,
+            totalUsedSizeBytes: storageAggregate?._sum.sizeBytes || 0,
+        };
         next();
     } catch (error) {
         res.status(401).json({
