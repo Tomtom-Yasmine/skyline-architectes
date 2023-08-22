@@ -11,6 +11,9 @@ import crypt from '../modules/crypt';
 import jwt from '../modules/jwt';
 import { updatePassword } from '../controllers/auth';
 import { requireAuthentication } from '../middleware';
+import {
+    sendMail,
+} from '../controllers/mail';
 
 const prisma = new PrismaClient();
 
@@ -51,7 +54,7 @@ router.post('/signup', async (req, res) => {
                 companyAddressZipCode,
                 companyAddressCountry,
                 havePaid: false,
-                storage : 0,
+                storage: 0,
             },
         });
 
@@ -89,6 +92,17 @@ router.post('/signup', async (req, res) => {
                     havePaid: false,
                     storage : 0,
                 }),
+            },
+        });
+
+        sendMail({
+            to: email,
+            subject: 'Bienvenue chez Skyline Architectes',
+            template: 'welcome',
+            data: {
+                firstName,
+                lastName,
+                email,
             },
         });
     } catch (err: unknown) {
