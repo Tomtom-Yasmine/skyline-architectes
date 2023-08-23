@@ -17,6 +17,7 @@ import { createOrder } from './controllers/order';
 import * as fs from 'fs';
 import * as path from 'path';
 import Stripe from 'stripe';
+import PDFDocument from 'pdfkit';
 
 dotenv.config();
 
@@ -26,8 +27,7 @@ const port = process.env.PORT || 3000;
 
 //TODO : Move to somewhere else
 //TODO : change type from any to definitive type
-const generateInvoicePDF = async (invoiceData:any, filePath: string, orderNumber: number|undefined) => {
-  const PDFDocument = require('pdfkit');
+const generateInvoicePDF = async (invoiceData: any, filePath: string, orderNumber: number|undefined) => {
 
     const doc = new PDFDocument();
     doc.pipe(fs.createWriteStream(filePath));
