@@ -27,7 +27,7 @@ CREATE TABLE `User` (
 -- CreateTable
 CREATE TABLE `Order` (
     `id` VARCHAR(191) NOT NULL,
-    `orderNumber` VARCHAR(191) NOT NULL,
+    `orderNumber` INTEGER NOT NULL AUTO_INCREMENT,
     `quantity` INTEGER NOT NULL,
     `unitPriceExcludingTaxes` DOUBLE NOT NULL,
     `vat` DOUBLE NOT NULL,
