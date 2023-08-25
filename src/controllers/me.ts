@@ -39,7 +39,6 @@ export const getMe = async (req: Request, res: Response) => {
             companyAddressCity: user.companyAddressCity,
             companyAddressZipCode: user.companyAddressZipCode,
             companyAddressCountry: user.companyAddressCountry,
-            storage: user.storage,
         },
     });
 };

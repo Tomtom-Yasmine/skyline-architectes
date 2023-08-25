@@ -1,7 +1,9 @@
 import { createCheckoutSession } from "../controllers/stripe";
 import { Router } from "express";
 import { requireAuthentication } from "../middleware";
-require("dotenv").config();
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const router = Router();
 
