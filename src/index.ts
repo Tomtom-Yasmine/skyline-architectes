@@ -79,19 +79,6 @@ app.use(meRouter);
 app.use('/stripe', stripe);
 app.use(fileRouter);
 
-app.get(
-    '/',
-    restrictTo(Role.USER, Role.ADMIN),
-    (req, res) => {
-        res.json({
-            headers: req.headers,
-            date: req.date,
-            ipHash: req.ipHash,
-            user: req.user,
-        });
-    },
-);
-
 app.post('/webhook', async (req, res) => {
     const event = req.body;
 
