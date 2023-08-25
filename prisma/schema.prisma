@@ -57,6 +57,7 @@ model File {
   sizeBytes     Int
   isPinned      Boolean  @default(false)
   isDeleted     Boolean  @default(false)
+  deletedAt     DateTime?
   thumbnailPath String?
   type          FileType
   user          User     @relation(fields: [userId], references: [id])

@@ -1,6 +1,10 @@
 import {
+    deleteFileById,
+    downloadFileById,
+    getFileById,
     getFilesByUserId,
     getMyFiles,
+    updateFileById,
     uploadFile,
 } from '../controllers/file';
 import {
@@ -38,6 +42,31 @@ router.post(
     restrictTo(Role.USER),
     multer().single('file'),
     uploadFile
+);
+
+router.get(
+    '/file/:fileId',
+    requireAuthentication(),
+    getFileById
+);
+
+router.get(
+    '/file/:fileId/download',
+    requireAuthentication(),
+    downloadFileById
+);
+
+router.delete(
+    '/file/:fileId',
+    requireAuthentication(),
+    deleteFileById
+);
+
+router.patch(
+    '/file/:fileId',
+    requireAuthentication(),
+    restrictTo(Role.USER),
+    updateFileById
 );
 
 export default router;

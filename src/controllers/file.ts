@@ -5,6 +5,7 @@ import {
 import {
     FileType,
     PrismaClient,
+    Role,
 } from '@prisma/client';
 import {
     extname,
@@ -19,7 +20,7 @@ export const getMyFiles = async (req: Request, res: Response) => {
     const files = await prisma.file.findMany({
         where: {
             userId: req.user?.id,
-            type: 'USER_FILE',
+            type: FileType.USER_FILE,
         },
     });
 
@@ -39,7 +40,7 @@ export const getFilesByUserId = async (req: Request, res: Response) => {
     const files = await prisma.file.findMany({
         where: {
             userId: req.params.userId,
-            type: 'USER_FILE',
+            type: FileType.USER_FILE,
         },
     });
 
@@ -108,4 +109,139 @@ export const uploadFile = async (req: Request, res: Response) => {
     res.status(201).json({
         file,
     });
+};
+
+export const getFileById = async (req: Request, res: Response) => {
+    const file = await prisma.file.findUnique({
+        where: {
+            id: req.params.fileId,
+        },
+    });
+
+    if (! file) {
+        res.status(404).json({
+            message: 'ERR:FILE_NOT_FOUND',
+        });
+        return;
+    }
+
+    if (file.userId !== req.user?.id && req.user?.role !== Role.ADMIN) {
+        res.status(403).json({
+            message: 'ERR:NOT_AUTHORIZED',
+        });
+        return;
+    }
+
+    res.status(200).json({
+        file,
+    });
+};
+
+export const downloadFileById = async (req: Request, res: Response) => {
+    const file = await prisma.file.findUnique({
+        where: {
+            id: req.params.fileId,
+        },
+    });
+
+    if (! file) {
+        res.status(404).json({
+            message: 'ERR:FILE_NOT_FOUND',
+        });
+        return;
+    }
+
+    if (file.userId !== req.user?.id && req.user?.role !== Role.ADMIN) {
+        res.status(403).json({
+            message: 'ERR:NOT_AUTHORIZED',
+        });
+        return;
+    }
+
+    res.download(file.serverPath);
+};
+
+export const deleteFileById = async (req: Request, res: Response) => {
+    const file = await prisma.file.findUnique({
+        where: {
+            id: req.params.fileId,
+        },
+    });
+
+    if (! file) {
+        res.status(404).json({
+            message: 'ERR:FILE_NOT_FOUND',
+        });
+        return;
+    }
+
+    if (file.userId !== req.user?.id && req.user?.role !== Role.ADMIN) {
+        res.status(403).json({
+            message: 'ERR:NOT_AUTHORIZED',
+        });
+        return;
+    }
+    
+    await prisma.file.delete({
+        where: {
+            id: req.params.fileId,
+        },
+    });
+
+    res.status(204).json();
+};
+
+export const updateFileById = async (req: Request, res: Response) => {
+    const {
+        slugName,
+        displayName,
+        folderPath,
+        isPinned,
+        isDeleted,
+    } = req.body;
+
+    const file = await prisma.file.findUnique({
+        where: {
+            id: req.params.fileId,
+        },
+    });
+
+    if (! file) {
+        res.status(404).json({
+            message: 'ERR:FILE_NOT_FOUND',
+        });
+        return;
+    }
+
+    if (file.userId !== req.user?.id) {
+        res.status(403).json({
+            message: 'ERR:NOT_AUTHORIZED',
+        });
+        return;
+    }
+
+    const updateData = {
+        slugName,
+        displayName,
+        folderPath,
+        isPinned,
+        isDeleted,
+    };
+
+    try {
+        const file = await prisma.file.update({
+            where: {
+                id: req.params.fileId,
+            },
+            data: updateData,
+        });
+
+        res.status(200).json({
+            file,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'ERR:INTERNAL_SERVER_ERROR',
+        });
+    }
 };
