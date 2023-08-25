@@ -7,6 +7,7 @@ import {
     PrismaClient,
     Role,
 } from '@prisma/client';
+import { sendMail } from './mail';
 
 const prisma = new PrismaClient();
 
@@ -81,9 +82,27 @@ export const updateMe = async (req: Request, res: Response) => {
 
 export const deleteMe = async (req: Request, res: Response) => {
     try {
+        await prisma.file.deleteMany({
+            where: {
+                userId: req.user?.id,
+                type: FileType.USER_FILE,
+            },
+        });
+        
         await prisma.user.delete({
             where: {
                 id: req.user?.id,
+            },
+        });
+
+        sendMail({
+            to: req.user?.email,
+            subject: 'Compte supprimé',
+            template: 'account-deleted',
+            data: {
+                firstName: req.user?.firstName,
+                lastName: req.user?.lastName,
+                email: req.user?.email,
             },
         });
 
