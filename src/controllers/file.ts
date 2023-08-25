@@ -8,7 +8,7 @@ import {
     Role,
 } from '@prisma/client';
 import {
-    extname,
+    extname, resolve,
 } from 'node:path';
 import {
     slugifyFilename,
@@ -158,7 +158,10 @@ export const downloadFileById = async (req: Request, res: Response) => {
         return;
     }
 
-    res.download(file.serverPath);
+    res.download(
+        resolve(file.serverPath, file.id),
+        file.slugName
+    );
 };
 
 export const deleteFileById = async (req: Request, res: Response) => {

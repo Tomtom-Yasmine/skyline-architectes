@@ -10,7 +10,11 @@ import {
 import authRouter from './routers/auth';
 import fileRouter from './routers/file';
 import meRouter from './routers/me';
-import { Role, } from '@prisma/client';
+import {
+  FileType,
+  PrismaClient,
+  Role,
+} from '@prisma/client';
 import stripe from './routers/stripe';
 import { updateUser } from './controllers/user';
 import { createOrder } from './controllers/order';
@@ -20,6 +24,8 @@ import Stripe from 'stripe';
 import PDFDocument from 'pdfkit';
 
 dotenv.config();
+
+const prisma = new PrismaClient();
 
 const app = express();
 app.set('x-powered-by', false);
@@ -88,7 +94,19 @@ app.post('/webhook', async (req, res) => {
 
       let user;
       let orderNumber;
-      const invoiceDirectory = './invoices';
+
+      const invoiceFile = await prisma.file.create({
+        data: {
+          slugName: `invoice-${orderNumber?.orderNumber}.pdf`,
+          displayName: `Facture #${orderNumber?.orderNumber}`,
+          serverPath: process.env.FILE_UPLOAD_PATH || '',
+          folderPath: '',
+          extension: 'pdf',
+          sizeBytes: 0,
+          type: FileType.INVOICE,
+          userId: session.metadata['user_id'],
+        },
+      });
 
       //Mise à jour du stockage de l'utilisateur
       try {
@@ -104,10 +122,19 @@ app.post('/webhook', async (req, res) => {
         res.status(500).send("Erreur lors de la création de la commande");
       }
 
-      const invoiceFilePath = path.join(invoiceDirectory, `invoice_${orderNumber?.orderNumber}.pdf`);
+      const invoiceFilePath = path.resolve(invoiceFile.serverPath, invoiceFile.id);
 
       try {
         generateInvoicePDF(session, invoiceFilePath, orderNumber?.orderNumber);
+        const fileSize = fs.statSync(invoiceFilePath).size;
+        await prisma.file.update({
+          where: {
+            id: invoiceFile.id,
+          },
+          data: {
+            sizeBytes: fileSize,
+          },
+        });
       } catch(error){
           res.status(500).send("Erreur lors de la génération de la facture");
       }
