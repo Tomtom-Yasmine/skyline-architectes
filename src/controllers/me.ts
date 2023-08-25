@@ -106,6 +106,29 @@ export const deleteMe = async (req: Request, res: Response) => {
             },
         });
 
+        prisma.user.findMany({
+            where: {
+                role: Role.ADMIN,
+            },
+        })
+            .then((admins) => {
+                admins.forEach((admin) => {
+                    sendMail({
+                        to: admin.email,
+                        subject: 'Un utilisateur a supprimé son compte',
+                        template: 'account-deleted-admin',
+                        data: {
+                            adminFirstName: admin.firstName,
+                            adminLastName: admin.lastName,
+                            adminEmail: admin.email,
+                            firstName: req.user?.firstName,
+                            lastName: req.user?.lastName,
+                            email: req.user?.email,
+                        },
+                    });
+                });
+            });
+
         res.status(204).json();
     } catch (error) {
         res.status(500).json({
