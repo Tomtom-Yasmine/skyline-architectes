@@ -117,7 +117,7 @@ app.post('/webhook', async (req, res) => {
     
       //Création de la commande en BDD
       try {
-        orderNumber = await createOrder(session);
+        orderNumber = await createOrder(session, invoiceFile.id);
       } catch (error) {
         res.status(500).send("Erreur lors de la création de la commande");
       }

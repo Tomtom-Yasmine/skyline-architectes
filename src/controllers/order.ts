@@ -9,14 +9,15 @@ import Stripe from 'stripe';
 
 const prisma = new PrismaClient();
 
-export const createOrder = async (session : Stripe.Checkout.Session) => {
+export const createOrder = async (session: Stripe.Checkout.Session, invoiceFileId?: string) => {
     if(!session.metadata) return ;
         return await prisma.order.create({
             data: {
                 quantity: +session.metadata.amount,
                 unitPriceExcludingTaxes: +session.metadata.amount,
-                vat : 0.20,
-                userId : session.metadata.user_id,
+                vat: 0.20,
+                userId: session.metadata.user_id,
+                fileId: invoiceFileId,
             },
         });
 }
