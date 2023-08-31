@@ -3,6 +3,7 @@ import {
     Response,
 } from 'express';
 import {
+    FileType,
     PrismaClient,
     Role,
 } from '@prisma/client';
@@ -38,6 +39,13 @@ export const getCustomers = async (req: Request, res: Response) => {
         where: {
             role: Role.USER,
         },
+        include: {
+            files: {
+                where: {
+                    type: FileType.USER_FILE,
+                },
+            },
+        },
     });
 
     if (! customers) {
@@ -51,6 +59,8 @@ export const getCustomers = async (req: Request, res: Response) => {
         customers: customers.map((customer) => ({
             ...customer,
             passwordHash: undefined,
+            numberOfFiles: customer.files.length,
+            totalUsedSizeBytes: customer.files.reduce((acc, file) => acc + file.sizeBytes, 0),
         })),
     });
 }
