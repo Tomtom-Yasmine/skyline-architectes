@@ -10,6 +10,7 @@ import {
 import authRouter from './routers/auth';
 import fileRouter from './routers/file';
 import meRouter from './routers/me';
+import statisticsRouter from './routers/statistics';
 import {
   FileType,
   PrismaClient,
@@ -84,6 +85,7 @@ app.use(authRouter);
 app.use(meRouter);
 app.use('/stripe', stripe);
 app.use(fileRouter);
+app.use(statisticsRouter);
 
 app.post('/webhook', async (req, res) => {
     const event = req.body;
