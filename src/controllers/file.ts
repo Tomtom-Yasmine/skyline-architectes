@@ -59,7 +59,7 @@ export const getFilesByUserId = async (req: Request, res: Response) => {
 export const uploadFile = async (req: Request, res: Response) => {
     if (! req.file) {
         res.status(400).json({
-            message: 'ERR:FILE_NOT_FOUND',
+            message: 'ERR:FILE_NOT_PROVIDED',
         });
         return;
     }
