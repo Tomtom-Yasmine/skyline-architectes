@@ -9,6 +9,7 @@ import {
 } from './middleware';
 import authRouter from './routers/auth';
 import fileRouter from './routers/file';
+import invoiceRouter from './routers/invoice';
 import meRouter from './routers/me';
 import statisticsRouter from './routers/statistics';
 import userRouter from './routers/user';
@@ -85,6 +86,7 @@ app.use(authRouter);
 app.use(meRouter);
 app.use('/stripe', stripe);
 app.use(fileRouter);
+app.use(invoiceRouter);
 app.use(statisticsRouter);
 app.use(userRouter);
 
