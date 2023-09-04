@@ -10,7 +10,13 @@ import {
 import authRouter from './routers/auth';
 import fileRouter from './routers/file';
 import meRouter from './routers/me';
-import { Role, } from '@prisma/client';
+import statisticsRouter from './routers/statistics';
+import userRouter from './routers/user';
+import {
+  FileType,
+  PrismaClient,
+  Role,
+} from '@prisma/client';
 import stripe from './routers/stripe';
 import { updateUser } from './controllers/user';
 import { createOrder } from './controllers/order';
@@ -21,6 +27,8 @@ import PDFDocument from 'pdfkit';
 
 dotenv.config();
 
+const prisma = new PrismaClient();
+
 const app = express();
 app.set('x-powered-by', false);
 const port = process.env.PORT || 3000;
@@ -28,7 +36,6 @@ const port = process.env.PORT || 3000;
 //TODO : Move to somewhere else
 //TODO : change type from any to definitive type
 const generateInvoicePDF = async (invoiceData: any, filePath: string, orderNumber: number|undefined) => {
-
     const doc = new PDFDocument();
     doc.pipe(fs.createWriteStream(filePath));
 
@@ -78,19 +85,8 @@ app.use(authRouter);
 app.use(meRouter);
 app.use('/stripe', stripe);
 app.use(fileRouter);
-
-app.get(
-    '/',
-    restrictTo(Role.USER, Role.ADMIN),
-    (req, res) => {
-        res.json({
-            headers: req.headers,
-            date: req.date,
-            ipHash: req.ipHash,
-            user: req.user,
-        });
-    },
-);
+app.use(statisticsRouter);
+app.use(userRouter);
 
 app.post('/webhook', async (req, res) => {
     const event = req.body;
@@ -100,29 +96,65 @@ app.post('/webhook', async (req, res) => {
       const session = event.data.object;
 
       let user;
-      let orderNumber;
-      const invoiceDirectory = './invoices';
+      let order;
 
       //Mise à jour du stockage de l'utilisateur
       try {
-        user =  await updateUser(session.metadata['user_id'], session.metadata['amount']);
+        user = await updateUser(session.metadata['user_id'], session.metadata['amount']);
       } catch (error) {
+        console.error(error);
         res.status(500).send("Erreur lors de la mise à jour de l'utilisateur");
       } 
     
       //Création de la commande en BDD
       try {
-        orderNumber = await createOrder(session);
+        order = await createOrder(session);
       } catch (error) {
+        console.error(error);
         res.status(500).send("Erreur lors de la création de la commande");
       }
 
-      const invoiceFilePath = path.join(invoiceDirectory, `invoice_${orderNumber?.orderNumber}.pdf`);
+      const invoiceFile = await prisma.file.create({
+        data: {
+          slugName: `invoice-${order?.orderNumber}.pdf`,
+          displayName: `Facture #${order?.orderNumber}`,
+          serverPath: process.env.FILE_UPLOAD_PATH || '',
+          folderPath: '',
+          extension: 'pdf',
+          sizeBytes: 0,
+          type: FileType.INVOICE,
+          userId: session.metadata['user_id'],
+        },
+      });
+
+      prisma.order.update({
+        where: {
+          id: order?.id,
+        },
+        data: {
+          fileId: invoiceFile.id,
+        },
+      });
+
+      const invoiceFilePath = path.resolve(invoiceFile.serverPath, `${invoiceFile.id}.pdf`);
 
       try {
-        generateInvoicePDF(session, invoiceFilePath, orderNumber?.orderNumber);
+        await generateInvoicePDF(session, invoiceFilePath, order?.orderNumber);
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 500);
+        });
+        const fileSize = fs.statSync(invoiceFilePath).size;
+        await prisma.file.update({
+          where: {
+            id: invoiceFile.id,
+          },
+          data: {
+            sizeBytes: fileSize,
+          },
+        });
       } catch(error){
-          res.status(500).send("Erreur lors de la génération de la facture");
+        console.error(error);
+        res.status(500).send("Erreur lors de la génération de la facture");
       }
 
       //Envoi de la facture par email
