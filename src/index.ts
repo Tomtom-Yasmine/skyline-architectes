@@ -36,14 +36,7 @@ const port = process.env.PORT || 3000;
 //TODO : Move to somewhere else
 //TODO : change type from any to definitive type
 const generateInvoicePDF = async (invoiceData: any, filePath: string, orderNumber: number|undefined) => {
-  console.log({
-    invoiceData,
-    filePath,
-    orderNumber,
-  });
-
     const doc = new PDFDocument();
-    console.log('doc', { doc, });
     doc.pipe(fs.createWriteStream(filePath));
 
     const emitterName = "Skyline Architectes";
@@ -147,14 +140,10 @@ app.post('/webhook', async (req, res) => {
 
       try {
         await generateInvoicePDF(session, invoiceFilePath, order?.orderNumber);
-        console.log('generateInvoicePDF', {
-          invoiceFilePath,
-          order,
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 500);
         });
         const fileSize = fs.statSync(invoiceFilePath).size;
-        console.log('fileSize', {
-          fileSize,
-        });
         await prisma.file.update({
           where: {
             id: invoiceFile.id,
@@ -163,7 +152,6 @@ app.post('/webhook', async (req, res) => {
             sizeBytes: fileSize,
           },
         });
-        console.log('prisma file updated');
       } catch(error){
         console.error(error);
         res.status(500).send("Erreur lors de la génération de la facture");
