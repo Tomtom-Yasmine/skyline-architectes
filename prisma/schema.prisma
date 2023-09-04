@@ -54,7 +54,7 @@ model File {
   folderPath    String
   uploadedAt    DateTime @default(now())
   extension     String
-  sizeBytes     Int
+  sizeBytes     BigInt
   isPinned      Boolean  @default(false)
   isDeleted     Boolean  @default(false)
   deletedAt     DateTime?
