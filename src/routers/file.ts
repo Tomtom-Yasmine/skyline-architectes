@@ -4,6 +4,8 @@ import {
     getFileById,
     getFilesByUserId,
     getMyFiles,
+    getRawFileById,
+    requestAccessByFileId,
     updateFileById,
     uploadFile,
 } from '../controllers/file';
@@ -51,8 +53,18 @@ router.get(
 );
 
 router.get(
-    '/file/:fileId/download',
+    '/file/:fileId/access',
     requireAuthentication(),
+    requestAccessByFileId
+);
+
+router.get(
+    '/file/:fileId/raw',
+    getRawFileById
+);
+
+router.get(
+    '/file/:fileId/download',
     downloadFileById
 );
 
