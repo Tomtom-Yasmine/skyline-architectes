@@ -36,8 +36,14 @@ const port = process.env.PORT || 3000;
 //TODO : Move to somewhere else
 //TODO : change type from any to definitive type
 const generateInvoicePDF = async (invoiceData: any, filePath: string, orderNumber: number|undefined) => {
+  console.log({
+    invoiceData,
+    filePath,
+    orderNumber,
+  });
 
     const doc = new PDFDocument();
+    console.log('doc', { doc, });
     doc.pipe(fs.createWriteStream(filePath));
 
     const emitterName = "Skyline Architectes";
@@ -103,6 +109,7 @@ app.post('/webhook', async (req, res) => {
       try {
         user = await updateUser(session.metadata['user_id'], session.metadata['amount']);
       } catch (error) {
+        console.error(error);
         res.status(500).send("Erreur lors de la mise à jour de l'utilisateur");
       } 
     
@@ -110,6 +117,7 @@ app.post('/webhook', async (req, res) => {
       try {
         order = await createOrder(session);
       } catch (error) {
+        console.error(error);
         res.status(500).send("Erreur lors de la création de la commande");
       }
 
@@ -135,11 +143,18 @@ app.post('/webhook', async (req, res) => {
         },
       });
 
-      const invoiceFilePath = path.resolve(invoiceFile.serverPath, invoiceFile.id);
+      const invoiceFilePath = path.resolve(invoiceFile.serverPath, `${invoiceFile.id}.pdf`);
 
       try {
-        generateInvoicePDF(session, invoiceFilePath, order?.orderNumber);
+        await generateInvoicePDF(session, invoiceFilePath, order?.orderNumber);
+        console.log('generateInvoicePDF', {
+          invoiceFilePath,
+          order,
+        });
         const fileSize = fs.statSync(invoiceFilePath).size;
+        console.log('fileSize', {
+          fileSize,
+        });
         await prisma.file.update({
           where: {
             id: invoiceFile.id,
@@ -148,8 +163,10 @@ app.post('/webhook', async (req, res) => {
             sizeBytes: fileSize,
           },
         });
+        console.log('prisma file updated');
       } catch(error){
-          res.status(500).send("Erreur lors de la génération de la facture");
+        console.error(error);
+        res.status(500).send("Erreur lors de la génération de la facture");
       }
 
       //Envoi de la facture par email
