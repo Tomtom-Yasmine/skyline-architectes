@@ -123,13 +123,20 @@ export const getRawInvoiceById = async (req: Request, res: Response) => {
         return;
     }
 
-    if (invoice.userId !== req.user?.id
-        && (
-            ! accessToken
-            || ! jwt.forFileAccess(invoice).verify(accessToken)
-        )) {
-        res.status(403).json({
-            message: 'ERR:NOT_AUTHORIZED',
+    try {
+        if (invoice.userId !== req.user?.id
+            && (
+                ! accessToken
+                || ! jwt.forFileAccess(invoice).verify(accessToken)
+            )) {
+            res.status(403).json({
+                message: 'ERR:NOT_AUTHORIZED',
+            });
+            return;
+        }
+    } catch (error) {
+        res.status(401).json({
+            message: 'ERR:INVALID_ACCESS_TOKEN',
         });
         return;
     }
@@ -155,13 +162,20 @@ export const downloadInvoiceById = async (req: Request, res: Response) => {
         return;
     }
 
-    if (invoice.userId !== req.user?.id
-        && (
-            ! accessToken
-            || ! jwt.forFileAccess(invoice).verify(accessToken)
-        )) {
-        res.status(403).json({
-            message: 'ERR:NOT_AUTHORIZED',
+    try {
+        if (invoice.userId !== req.user?.id
+            && (
+                ! accessToken
+                || ! jwt.forFileAccess(invoice).verify(accessToken)
+            )) {
+            res.status(403).json({
+                message: 'ERR:NOT_AUTHORIZED',
+            });
+            return;
+        }
+    } catch (error) {
+        res.status(401).json({
+            message: 'ERR:INVALID_ACCESS_TOKEN',
         });
         return;
     }

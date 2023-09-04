@@ -182,14 +182,21 @@ export const getRawFileById = async (req: Request, res: Response) => {
         return;
     }
 
-    if (file.userId !== req.user?.id
-        && req.user?.role !== Role.ADMIN
-        && (
-            ! accessToken
-            || ! jwt.forFileAccess(file).verify(accessToken)
-        )) {
-        res.status(403).json({
-            message: 'ERR:NOT_AUTHORIZED',
+    try {
+        if (file.userId !== req.user?.id
+            && req.user?.role !== Role.ADMIN
+            && (
+                ! accessToken
+                || ! jwt.forFileAccess(file).verify(accessToken)
+            )) {
+            res.status(403).json({
+                message: 'ERR:NOT_AUTHORIZED',
+            });
+            return;
+        }
+    } catch (error) {
+        res.status(401).json({
+            message: 'ERR:INVALID_ACCESS_TOKEN',
         });
         return;
     }
@@ -215,14 +222,21 @@ export const downloadFileById = async (req: Request, res: Response) => {
         return;
     }
 
-    if (file.userId !== req.user?.id
-        && req.user?.role !== Role.ADMIN
-        && (
-            ! accessToken
-            || ! jwt.forFileAccess(file).verify(accessToken)
-        )) {
-        res.status(403).json({
-            message: 'ERR:NOT_AUTHORIZED',
+    try {
+        if (file.userId !== req.user?.id
+            && req.user?.role !== Role.ADMIN
+            && (
+                ! accessToken
+                || ! jwt.forFileAccess(file).verify(accessToken)
+            )) {
+            res.status(403).json({
+                message: 'ERR:NOT_AUTHORIZED',
+            });
+            return;
+        }
+    } catch (error) {
+        res.status(401).json({
+            message: 'ERR:INVALID_ACCESS_TOKEN',
         });
         return;
     }
