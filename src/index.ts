@@ -97,12 +97,26 @@ app.post('/webhook', async (req, res) => {
       const session = event.data.object;
 
       let user;
-      let orderNumber;
+      let order;
+
+      //Mise à jour du stockage de l'utilisateur
+      try {
+        user = await updateUser(session.metadata['user_id'], session.metadata['amount']);
+      } catch (error) {
+        res.status(500).send("Erreur lors de la mise à jour de l'utilisateur");
+      } 
+    
+      //Création de la commande en BDD
+      try {
+        order = await createOrder(session);
+      } catch (error) {
+        res.status(500).send("Erreur lors de la création de la commande");
+      }
 
       const invoiceFile = await prisma.file.create({
         data: {
-          slugName: `invoice-${orderNumber?.orderNumber}.pdf`,
-          displayName: `Facture #${orderNumber?.orderNumber}`,
+          slugName: `invoice-${order?.orderNumber}.pdf`,
+          displayName: `Facture #${order?.orderNumber}`,
           serverPath: process.env.FILE_UPLOAD_PATH || '',
           folderPath: '',
           extension: 'pdf',
@@ -112,24 +126,19 @@ app.post('/webhook', async (req, res) => {
         },
       });
 
-      //Mise à jour du stockage de l'utilisateur
-      try {
-        user =  await updateUser(session.metadata['user_id'], session.metadata['amount']);
-      } catch (error) {
-        res.status(500).send("Erreur lors de la mise à jour de l'utilisateur");
-      } 
-    
-      //Création de la commande en BDD
-      try {
-        orderNumber = await createOrder(session, invoiceFile.id);
-      } catch (error) {
-        res.status(500).send("Erreur lors de la création de la commande");
-      }
+      prisma.order.update({
+        where: {
+          id: order?.id,
+        },
+        data: {
+          fileId: invoiceFile.id,
+        },
+      });
 
       const invoiceFilePath = path.resolve(invoiceFile.serverPath, invoiceFile.id);
 
       try {
-        generateInvoicePDF(session, invoiceFilePath, orderNumber?.orderNumber);
+        generateInvoicePDF(session, invoiceFilePath, order?.orderNumber);
         const fileSize = fs.statSync(invoiceFilePath).size;
         await prisma.file.update({
           where: {
