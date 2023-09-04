@@ -76,7 +76,7 @@ export const uploadFile = async (req: Request, res: Response) => {
         return;
     }
 
-    if (req.user.totalUsedSizeBytes + size > req.user.storage) {
+    if (req.user.totalUsedSizeBytes + size > req.user.storage * 1_000_000_000) {
         res.status(400).json({
             message: 'ERR:USER_STORAGE_LIMIT_EXCEEDED',
         });
