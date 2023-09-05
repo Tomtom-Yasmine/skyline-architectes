@@ -2,6 +2,7 @@ import {
     Request,
     Response,
 } from 'express';
+import mime from 'mime-types';
 import {
     FileType,
     PrismaClient,
@@ -142,7 +143,13 @@ export const getRawInvoiceById = async (req: Request, res: Response) => {
     }
 
     res.sendFile(
-        resolve(invoice.serverPath, invoice.id)
+        resolve(invoice.serverPath, invoice.id),
+        {
+            headers: {
+                'Content-Type': mime.contentType(invoice.extension),
+                'Content-Disposition': 'inline',
+            },
+        },
     );
 };
 
