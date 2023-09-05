@@ -7,6 +7,7 @@ import {
     PrismaClient,
     Role,
 } from '@prisma/client';
+import mime from 'mime-types';
 import {
     extname, resolve,
 } from 'node:path';
@@ -215,7 +216,13 @@ export const getRawFileById = async (req: Request, res: Response) => {
     }
 
     res.sendFile(
-        resolve(file.serverPath, file.id)
+        resolve(file.serverPath, file.id),
+        {
+            headers: {
+                'Content-Type': mime.contentType(file.extension),
+                'Content-Disposition': 'inline',
+            },
+        },
     );
 };
 
