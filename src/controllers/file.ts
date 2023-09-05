@@ -92,6 +92,15 @@ export const uploadFile = async (req: Request, res: Response) => {
     const extension = extname(originalname).replace('.', '');
     const slugName = slugifyFilename(originalname);
 
+    const extensionsWhitelist = (process.env.FILE_UPLOAD_EXT_WHITELIST as string).split(',');
+
+    if (! extensionsWhitelist.includes(extension)) {
+        res.status(403).json({
+            message: 'ERR:FILE_EXTENSION_NOT_ALLOWED',
+        });
+        return;
+    }
+
     const file = await prisma.file.create({
         data: {
             displayName: originalname,
