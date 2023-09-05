@@ -103,6 +103,7 @@ export const deleteMe = async (req: Request, res: Response) => {
                 firstName: req.user?.firstName,
                 lastName: req.user?.lastName,
                 email: req.user?.email,
+                numberOfFiles: req.user?.numberOfFiles,
             },
         });
 
@@ -124,6 +125,7 @@ export const deleteMe = async (req: Request, res: Response) => {
                             firstName: req.user?.firstName,
                             lastName: req.user?.lastName,
                             email: req.user?.email,
+                            numberOfFiles: req.user?.numberOfFiles,
                         },
                     });
                 });
