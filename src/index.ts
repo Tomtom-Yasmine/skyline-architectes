@@ -64,9 +64,9 @@ const generateInvoicePDF = async (invoiceData: any, filePath: string, orderNumbe
         .text(`Produit acheté : Stockage skyline architectes (Go)`)
         .text(`Quantité : ${invoiceData.metadata.amount} (Go)`)
         .text(`Prix unitaire (Hors taxes) : ${(invoiceData.metadata.amount - (invoiceData.metadata.amount * 0.20)) / invoiceData.metadata.amount}€`)
-        .text(`Montant total (Hors taxes) : ${invoiceData.metadata.amount}€`)
+        .text(`Montant total (Hors taxes) : ${invoiceData.metadata.amount - (invoiceData.metadata.amount * 0.20)}€`)
         .text(`Montant TVA (20%) : ${invoiceData.metadata.amount * 0.20}€`)
-        .text(`Montant total (avec TVA) : ${invoiceData.metadata.amount - (invoiceData.metadata.amount * 0.20)}€`);
+        .text(`Montant total (avec TVA) : ${invoiceData.metadata.amount }€`);
     
     doc.end();
   };
@@ -95,7 +95,8 @@ app.post('/webhook', async (req, res) => {
   switch (event.type) {
     case 'checkout.session.completed':
       const session = event.data.object;
-
+      // console.log("session de stripe");
+      console.log(session);
       let user;
       let order;
 
