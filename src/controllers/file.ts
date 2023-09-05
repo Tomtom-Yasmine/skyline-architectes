@@ -13,6 +13,7 @@ import {
 import {
     slugifyFilename,
 } from '../modules/utils';
+import jwt from '../modules/jwt';
 
 const prisma = new PrismaClient();
 
@@ -137,7 +138,7 @@ export const getFileById = async (req: Request, res: Response) => {
     });
 };
 
-export const downloadFileById = async (req: Request, res: Response) => {
+export const requestAccessByFileId = async (req: Request, res: Response) => {
     const file = await prisma.file.findUnique({
         where: {
             id: req.params.fileId,
@@ -154,6 +155,88 @@ export const downloadFileById = async (req: Request, res: Response) => {
     if (file.userId !== req.user?.id && req.user?.role !== Role.ADMIN) {
         res.status(403).json({
             message: 'ERR:NOT_AUTHORIZED',
+        });
+        return;
+    }
+
+    const token = jwt.forFileAccess(file).sign();
+
+    res.json({
+        accessToken: token,
+    });
+};
+
+export const getRawFileById = async (req: Request, res: Response) => {
+    const { accessToken, }: { accessToken?: string; } = req.query;
+
+    const file = await prisma.file.findUnique({
+        where: {
+            id: req.params.fileId,
+        },
+    });
+
+    if (! file) {
+        res.status(404).json({
+            message: 'ERR:FILE_NOT_FOUND',
+        });
+        return;
+    }
+
+    try {
+        if (file.userId !== req.user?.id
+            && req.user?.role !== Role.ADMIN
+            && (
+                ! accessToken
+                || ! jwt.forFileAccess(file).verify(accessToken)
+            )) {
+            res.status(403).json({
+                message: 'ERR:NOT_AUTHORIZED',
+            });
+            return;
+        }
+    } catch (error) {
+        res.status(401).json({
+            message: 'ERR:INVALID_ACCESS_TOKEN',
+        });
+        return;
+    }
+
+    res.sendFile(
+        resolve(file.serverPath, file.id)
+    );
+};
+
+export const downloadFileById = async (req: Request, res: Response) => {
+    const { accessToken, }: { accessToken?: string; } = req.query;
+
+    const file = await prisma.file.findUnique({
+        where: {
+            id: req.params.fileId,
+        },
+    });
+
+    if (! file) {
+        res.status(404).json({
+            message: 'ERR:FILE_NOT_FOUND',
+        });
+        return;
+    }
+
+    try {
+        if (file.userId !== req.user?.id
+            && req.user?.role !== Role.ADMIN
+            && (
+                ! accessToken
+                || ! jwt.forFileAccess(file).verify(accessToken)
+            )) {
+            res.status(403).json({
+                message: 'ERR:NOT_AUTHORIZED',
+            });
+            return;
+        }
+    } catch (error) {
+        res.status(401).json({
+            message: 'ERR:INVALID_ACCESS_TOKEN',
         });
         return;
     }

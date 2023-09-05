@@ -2,6 +2,8 @@ import {
     downloadInvoiceById,
     getInvoiceById,
     getMyInvoices,
+    getRawInvoiceById,
+    requestAccessByInvoiceId,
 } from '../controllers/invoice';
 import {
     Router,
@@ -31,9 +33,18 @@ router.get(
 );
 
 router.get(
-    '/invoice/:invoiceId/download',
+    '/invoice/:invoiceId/access',
     requireAuthentication(),
-    restrictTo(Role.USER),
+    requestAccessByInvoiceId
+);
+
+router.get(
+    '/invoice/:invoiceId/raw',
+    getRawInvoiceById
+);
+
+router.get(
+    '/invoice/:invoiceId/download',
     downloadInvoiceById
 );
 

@@ -46,4 +46,3 @@ export const updatePassword = async (req: Request, res: Response) => {
         message: 'OK:PASSWORD_UPDATED',
     });
 };
-

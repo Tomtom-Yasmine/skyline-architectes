@@ -1,5 +1,6 @@
 import {
     User,
+    File,
 } from '@prisma/client';
 import dayjs from 'dayjs';
 import jwt from 'jsonwebtoken';
@@ -15,6 +16,7 @@ enum JwtPurpose {
     UserSession = 'user-session',
     EmailVerification = 'email-verification',
     PasswordReset = 'password-reset',
+    FileAccess = 'file-access',
 }
 
 const forUserSession = (user?: User): JwtFactory<{
@@ -66,8 +68,55 @@ const forUserSession = (user?: User): JwtFactory<{
     };
 };
 
+const forFileAccess = (file?: File): JwtFactory<{
+    file: {
+        id: string;
+    };
+    expirationDate: dayjs.Dayjs;
+}> => {
+    return {
+        sign: (): string => {
+            if (! file) {
+                throw new Error('ERR:SUBJECT_FILE_REQUIRED_TO_CREATE_ACCESS_TOKEN');
+            }
+            return jwt.sign(
+                {
+                    purpose: JwtPurpose.FileAccess,
+                },
+                getJwtSecret(),
+                {
+                    subject: file.id,
+                    expiresIn: '10m',
+                },
+            );
+        },
+        verify: (token: string) => {
+            const decoded = jwt.verify(
+                token,
+                getJwtSecret(),
+                {
+                    subject: file?.id,
+                    complete: true,
+                },
+            );
+            if (typeof decoded.payload === 'string'
+            || ! decoded.payload.sub
+            || decoded.payload.purpose !== JwtPurpose.FileAccess) {
+                throw new Error('ERR:INVALID_ACCESS_TOKEN');
+            }
+            return {
+                file: {
+                    id: decoded.payload.sub,
+                },
+                expirationDate: dayjs(decoded.payload.exp),
+            };
+        },
+    };
+};
+
 export default {
     forUserSession,
+    forFileAccess,
     sign: (payload: jwt.JwtPayload, options?: jwt.SignOptions): string => {
         return jwt.sign(
             payload,

@@ -5,7 +5,6 @@ import {
     hashIpAddress,
     requestDate,
     authenticate,
-    restrictTo,
 } from './middleware';
 import authRouter from './routers/auth';
 import fileRouter from './routers/file';
@@ -129,7 +128,7 @@ app.post('/webhook', async (req, res) => {
         },
       });
 
-      prisma.order.update({
+      await prisma.order.update({
         where: {
           id: order?.id,
         },
@@ -138,7 +137,7 @@ app.post('/webhook', async (req, res) => {
         },
       });
 
-      const invoiceFilePath = path.resolve(invoiceFile.serverPath, `${invoiceFile.id}.pdf`);
+      const invoiceFilePath = path.resolve(invoiceFile.serverPath, invoiceFile.id);
 
       try {
         await generateInvoicePDF(session, invoiceFilePath, order?.orderNumber);
