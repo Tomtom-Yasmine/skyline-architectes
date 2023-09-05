@@ -11,6 +11,9 @@ import {
     extname, resolve,
 } from 'node:path';
 import {
+    writeFileSync,
+} from 'node:fs';
+import {
     slugifyFilename,
 } from '../modules/utils';
 import jwt from '../modules/jwt';
@@ -68,6 +71,7 @@ export const uploadFile = async (req: Request, res: Response) => {
     const {
         originalname,
         size,
+        buffer,
     } = req.file;
 
     if (! req.user) {
@@ -107,9 +111,18 @@ export const uploadFile = async (req: Request, res: Response) => {
         return;
     }
 
-    res.status(201).json({
-        file,
-    });
+    const filePath = resolve(file.serverPath, file.id);
+
+    try {
+        writeFileSync(filePath, buffer);
+        res.status(201).json({
+            file,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'ERR:INTERNAL_SERVER_ERROR',
+        });
+    }
 };
 
 export const getFileById = async (req: Request, res: Response) => {

@@ -22,7 +22,7 @@ import {
 import Multer from 'multer';
 
 const router = Router();
-const multer = () => Multer({ dest: process.env.FILE_UPLOAD_PATH || '', });
+const multer = () => Multer({ storage: Multer.memoryStorage(), });
 
 router.get(
     '/files',
