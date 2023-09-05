@@ -24,6 +24,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import Stripe from 'stripe';
 import PDFDocument from 'pdfkit';
+import { sendMail } from './controllers/mail';
 
 dotenv.config();
 
@@ -94,7 +95,7 @@ app.post('/webhook', async (req, res) => {
 
   switch (event.type) {
     case 'checkout.session.completed':
-      const session = event.data.object;
+      const session: Stripe.Checkout.Session = event.data.object;
 
       let user;
       let order;
@@ -159,6 +160,21 @@ app.post('/webhook', async (req, res) => {
       }
 
       //Envoi de la facture par email
+      const clientAppUrl = process.env.CLIENT_URL as string;
+      sendMail({
+        to: user?.email,
+        subject: 'Confirmation d’achat',
+        template: 'order-complete',
+        data: {
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          email: user?.email,
+          totalPrice: session.metadata?.amount,
+          quantity: session.metadata?.amount,
+          newStorage: user?.storage,
+          invoicesUrl: `${clientAppUrl}/myaccount?tab=invoices`,
+        },
+      });
       break;
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
