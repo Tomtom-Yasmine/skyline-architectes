@@ -89,7 +89,7 @@ export const uploadFile = async (req: Request, res: Response) => {
         return;
     }
 
-    const extension = extname(originalname).replace('.', '');
+    const extension = extname(originalname).replace('.', '').toLowerCase();
     const slugName = slugifyFilename(originalname);
 
     const extensionsWhitelist = (process.env.FILE_UPLOAD_EXT_WHITELIST as string).split(',');
