@@ -14,7 +14,7 @@ export const createOrder = async (session: Stripe.Checkout.Session, invoiceFileI
         return await prisma.order.create({
             data: {
                 quantity: +session.metadata.amount,
-                unitPriceExcludingTaxes: +session.metadata.amount,
+                unitPriceExcludingTaxes: +session.metadata.amount_excluding_taxes,
                 vat: 0.20,
                 userId: session.metadata.user_id,
                 fileId: invoiceFileId,
