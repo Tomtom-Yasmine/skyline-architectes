@@ -103,6 +103,7 @@ router.post('/signup', async (req, res) => {
                 firstName,
                 lastName,
                 email,
+                appUrl: process.env.CLIENT_URL as string,
             },
         });
     } catch (err: unknown) {

@@ -21,7 +21,7 @@ export const updateUser = async (userId : string, storageAdditional : number) =>
         return;
     }
     try {
-        await prisma.user.update({
+        return await prisma.user.update({
             where: {
                 id: userId,
             },
