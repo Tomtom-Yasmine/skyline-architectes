@@ -67,7 +67,7 @@ const generateInvoicePDF = async (invoiceData: any, filePath: string, orderNumbe
         .text(`Prix unitaire (Hors taxes) : ${(invoiceData.metadata.amount - (invoiceData.metadata.amount * 0.20)) / invoiceData.metadata.amount}€`)
         .text(`Montant total (Hors taxes) : ${invoiceData.metadata.amount - (invoiceData.metadata.amount * 0.20)}€`)
         .text(`Montant TVA (20%) : ${invoiceData.metadata.amount * 0.20}€`)
-        .text(`Montant total (avec TVA) : ${invoiceData.metadata.amount }€`);
+        .text(`Montant total (TTC) : ${invoiceData.metadata.amount }€`);
     
     doc.end();
   };
